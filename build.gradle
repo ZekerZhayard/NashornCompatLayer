@@ -52,11 +52,12 @@ dependencies {
 jar {
     manifest {
         attributes([
-                "Specification-Title": "NashornCompatLayer",
+                "Name": "${project.group}.${project.archivesBaseName}".replace(".", "/"),
+                "Specification-Title": "${project.name}",
                 "Specification-Vendor": "ZekerZhayard",
-                "Specification-Version": "1",
-                "Implementation-Title": project.name,
-                "Implementation-Version": "${archiveVersion}",
+                "Specification-Version": "${project.version}".split("-")[0],
+                "Implementation-Title": "${project.name}",
+                "Implementation-Version": "${project.version}",
                 "Implementation-Vendor" :"ZekerZhayard",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 "Automatic-Module-Name": "${project.group}.${project.archivesBaseName}",

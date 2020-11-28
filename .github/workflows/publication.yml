@@ -40,10 +40,9 @@ jobs:
         with:
           name: Package
           path: build/libs
-      - name: Set environment variables
+      - name: Publish to JCenter
         env:
           IS_PUBLICATION: true
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
-      - name: Publish to JCenter
         run: ./gradlew.bat bintrayUpload -iS
