@@ -31,7 +31,7 @@ apply plugin: "maven"
 apply plugin: "maven-publish"
 apply plugin: "com.jfrog.bintray"
 
-version = "1.0.0"
+version = "1.0.1${-> getVersionSuffix()}"
 group = "io.github.zekerzhayard"
 archivesBaseName = "nashorn-compat-layer"
 
@@ -58,7 +58,9 @@ jar {
                 "Implementation-Title": project.name,
                 "Implementation-Version": "${archiveVersion}",
                 "Implementation-Vendor" :"ZekerZhayard",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Automatic-Module-Name": "${project.group}.${project.archivesBaseName}",
+                "GitCommit": String.valueOf(System.getenv("GITHUB_SHA"))
         ])
     }
 }
@@ -97,4 +99,13 @@ bintray {
             vcsTag = "${project.version}"
         }
     }
+}
+
+static String getVersionSuffix() {
+    if (System.getenv("IS_PUBLICATION") != null) {
+        return ""
+    } else if (System.getenv("GITHUB_RUN_NUMBER") != null && System.getenv("GITHUB_SHA") != null) {
+        return "-s." + System.getenv("GITHUB_RUN_NUMBER") + "-" + System.getenv("GITHUB_SHA").substring(0, 7)
+    }
+    return "-LOCAL"
 }
