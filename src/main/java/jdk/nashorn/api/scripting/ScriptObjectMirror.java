@@ -25,7 +25,6 @@
 
 package jdk.nashorn.api.scripting;
 
-import java.nio.ByteBuffer;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,11 +36,6 @@ import javax.script.Bindings;
 import io.github.zekerzhayard.nashorncompatlayer.NashornCompatLayer;
 import org.openjdk.nashorn.api.scripting.AbstractJSObject;
 
-/**
- * Mirror object that wraps a given Nashorn Script object.
- *
- * @since 1.8u40
- */
 public final class ScriptObjectMirror extends AbstractJSObject implements Bindings {
     public final org.openjdk.nashorn.api.scripting.ScriptObjectMirror instance;
 
@@ -81,16 +75,6 @@ public final class ScriptObjectMirror extends AbstractJSObject implements Bindin
         return NashornCompatLayer.convertScriptObjectMirror(this.instance.eval(s));
     }
 
-    /**
-     * Call member function
-     * @param functionName function name
-     * @param args         arguments
-     * @return return value of function
-     */
-    public Object callMember(final String functionName, final Object... args) {
-        return NashornCompatLayer.convertScriptObjectMirror(this.instance.callMember(functionName, args));
-    }
-
     @Override
     public Object getMember(final String name) {
         return NashornCompatLayer.convertScriptObjectMirror(this.instance.getMember(name));
@@ -124,16 +108,6 @@ public final class ScriptObjectMirror extends AbstractJSObject implements Bindin
     @Override
     public void setSlot(final int index, final Object value) {
         this.instance.setSlot(index, NashornCompatLayer.convertScriptObjectMirror(value));
-    }
-
-    /**
-     * Nashorn extension: setIndexedPropertiesToExternalArrayData.
-     * set indexed properties be exposed from a given nio ByteBuffer.
-     *
-     * @param buf external buffer - should be a nio ByteBuffer
-     */
-    public void setIndexedPropertiesToExternalArrayData(final ByteBuffer buf) {
-        this.instance.setIndexedPropertiesToExternalArrayData(buf);
     }
 
     @Override
@@ -217,17 +191,6 @@ public final class ScriptObjectMirror extends AbstractJSObject implements Bindin
         return NashornCompatLayer.convertScriptObjectMirror(this.instance.remove(NashornCompatLayer.convertScriptObjectMirror(key)));
     }
 
-    /**
-     * Delete a property from this object.
-     *
-     * @param key the property to be deleted
-     *
-     * @return if the delete was successful or not
-     */
-    public boolean delete(final Object key) {
-        return this.instance.delete(key);
-    }
-
     @Override
     public int size() {
         return this.instance.size();
@@ -236,185 +199,6 @@ public final class ScriptObjectMirror extends AbstractJSObject implements Bindin
     @Override
     public Collection<Object> values() {
         return this.instance.values();
-    }
-
-    // Support for ECMAScript Object API on mirrors
-
-    /**
-     * Return the __proto__ of this object.
-     * @return __proto__ object.
-     */
-    public Object getProto() {
-        return this.instance.getProto();
-    }
-
-    /**
-     * Set the __proto__ of this object.
-     * @param proto new proto for this object
-     */
-    public void setProto(final Object proto) {
-        this.instance.setProto(proto);
-    }
-
-    /**
-     * ECMA 8.12.1 [[GetOwnProperty]] (P)
-     *
-     * @param key property key
-     *
-     * @return Returns the Property Descriptor of the named own property of this
-     * object, or undefined if absent.
-     */
-    public Object getOwnPropertyDescriptor(final String key) {
-        return this.instance.getOwnPropertyDescriptor(key);
-    }
-
-    /**
-     * return an array of own property keys associated with the object.
-     *
-     * @param all True if to include non-enumerable keys.
-     * @return Array of keys.
-     */
-    public String[] getOwnKeys(final boolean all) {
-        return this.instance.getOwnKeys(all);
-    }
-
-    /**
-     * Flag this script object as non extensible
-     *
-     * @return the object after being made non extensible
-     */
-    public ScriptObjectMirror preventExtensions() {
-        return (ScriptObjectMirror) NashornCompatLayer.convertScriptObjectMirror(this.instance.preventExtensions());
-    }
-
-    /**
-     * Check if this script object is extensible
-     * @return true if extensible
-     */
-    public boolean isExtensible() {
-        return this.instance.isExtensible();
-    }
-
-    /**
-     * ECMAScript 15.2.3.8 - seal implementation
-     * @return the sealed script object
-     */
-    public ScriptObjectMirror seal() {
-        return (ScriptObjectMirror) NashornCompatLayer.convertScriptObjectMirror(this.instance.seal());
-    }
-
-    /**
-     * Check whether this script object is sealed
-     * @return true if sealed
-     */
-    public boolean isSealed() {
-        return this.instance.isSealed();
-    }
-
-    /**
-     * ECMA 15.2.39 - freeze implementation. Freeze this script object
-     * @return the frozen script object
-     */
-    public ScriptObjectMirror freeze() {
-        return (ScriptObjectMirror) NashornCompatLayer.convertScriptObjectMirror(this.instance.freeze());
-    }
-
-    /**
-     * Check whether this script object is frozen
-     * @return true if frozen
-     */
-    public boolean isFrozen() {
-        return this.instance.isFrozen();
-    }
-
-    /**
-     * Utility to check if given object is ECMAScript undefined value
-     *
-     * @param obj object to check
-     * @return true if 'obj' is ECMAScript undefined value
-     */
-    public static boolean isUndefined(final Object obj) {
-        return org.openjdk.nashorn.api.scripting.ScriptObjectMirror.isUndefined(obj);
-    }
-
-    /**
-     * Utility to convert this script object to the given type.
-     *
-     * @param <T> destination type to convert to
-     * @param type destination type to convert to
-     * @return converted object
-     */
-    public <T> T to(final Class<T> type) {
-        return this.instance.to(type);
-    }
-
-    /**
-     * Make a script object mirror on given object if needed.
-     *
-     * @param obj object to be wrapped/converted
-     * @param homeGlobal global to which this object belongs.
-     * @return wrapped/converted object
-     */
-    public static Object wrap(final Object obj, final Object homeGlobal) {
-        return NashornCompatLayer.convertScriptObjectMirror(org.openjdk.nashorn.api.scripting.ScriptObjectMirror.wrap(NashornCompatLayer.convertScriptObjectMirror(obj), NashornCompatLayer.convertScriptObjectMirror(homeGlobal)));
-    }
-
-    /**
-     * Make a script object mirror on given object if needed. The created wrapper will implement
-     * the Java {@code List} interface if {@code obj} is a JavaScript {@code Array} object;
-     * this is compatible with Java JSON libraries expectations. Arrays retrieved through its
-     * properties (transitively) will also implement the list interface.
-     *
-     * @param obj object to be wrapped/converted
-     * @param homeGlobal global to which this object belongs.
-     * @return wrapped/converted object
-     */
-    public static Object wrapAsJSONCompatible(final Object obj, final Object homeGlobal) {
-        return NashornCompatLayer.convertScriptObjectMirror(org.openjdk.nashorn.api.scripting.ScriptObjectMirror.wrap(NashornCompatLayer.convertScriptObjectMirror(obj), NashornCompatLayer.convertScriptObjectMirror(homeGlobal)));
-    }
-
-    /**
-     * Unwrap a script object mirror if needed.
-     *
-     * @param obj object to be unwrapped
-     * @param homeGlobal global to which this object belongs
-     * @return unwrapped object
-     */
-    public static Object unwrap(final Object obj, final Object homeGlobal) {
-        return org.openjdk.nashorn.api.scripting.ScriptObjectMirror.unwrap(obj, homeGlobal);
-    }
-
-    /**
-     * Wrap an array of object to script object mirrors if needed.
-     *
-     * @param args array to be unwrapped
-     * @param homeGlobal global to which this object belongs
-     * @return wrapped array
-     */
-    public static Object[] wrapArray(final Object[] args, final Object homeGlobal) {
-        return org.openjdk.nashorn.api.scripting.ScriptObjectMirror.wrapArray(args, homeGlobal);
-    }
-
-    /**
-     * Unwrap an array of script object mirrors if needed.
-     *
-     * @param args array to be unwrapped
-     * @param homeGlobal global to which this object belongs
-     * @return unwrapped array
-     */
-    public static Object[] unwrapArray(final Object[] args, final Object homeGlobal) {
-        return org.openjdk.nashorn.api.scripting.ScriptObjectMirror.unwrapArray(args, homeGlobal);
-    }
-
-    /**
-     * Are the given objects mirrors to same underlying object?
-     *
-     * @param obj1 first object
-     * @param obj2 second object
-     * @return true if obj1 and obj2 are identical script objects or mirrors of it.
-     */
-    public static boolean identical(final Object obj1, final Object obj2) {
-        return org.openjdk.nashorn.api.scripting.ScriptObjectMirror.identical(NashornCompatLayer.convertScriptObjectMirror(obj1), NashornCompatLayer.convertScriptObjectMirror(obj2));
     }
 
     @Override @Deprecated

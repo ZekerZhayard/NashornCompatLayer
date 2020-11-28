@@ -1,11 +1,41 @@
+/*
+ * Copyright (C) 2020  ZekerZhayard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5"
+    }
+}
+
 apply plugin: "java"
 apply plugin: "eclipse"
+apply plugin: "maven"
+apply plugin: "maven-publish"
+apply plugin: "com.jfrog.bintray"
 
-version = '1.0.0'
-group = 'io.github.zekerzhayard.nashorncompatlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'nashorn-compat-layer'
+version = "1.0.0"
+group = "io.github.zekerzhayard"
+archivesBaseName = "nashorn-compat-layer"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '15'
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = "15"
 
 repositories {
     mavenCentral()
@@ -15,7 +45,6 @@ repositories {
 }
 
 dependencies {
-    implementation "com.google.code.findbugs:jsr305:3.0.2"
     implementation "cpw.mods:modlauncher:8.0.6"
     implementation "org.openjdk.nashorn:nashorn-core:15.0"
 }
@@ -25,7 +54,7 @@ jar {
         attributes([
                 "Specification-Title": "NashornCompatLayer",
                 "Specification-Vendor": "ZekerZhayard",
-                "Specification-Version": "1", // We are version 1 of ourselves
+                "Specification-Version": "1",
                 "Implementation-Title": project.name,
                 "Implementation-Version": "${archiveVersion}",
                 "Implementation-Vendor" :"ZekerZhayard",
@@ -36,4 +65,36 @@ jar {
 
 compileJava {
     options.compilerArgs += ["--enable-preview"]
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId "${project.group}"
+            artifactId "${project.archivesBaseName}"
+            version "${project.version}"
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty("bintray.user.name") ? project.property("bintray.user.name") : System.getenv("BINTRAY_USER")
+    key = project.hasProperty("bintray.api.key") ? project.property("bintray.api.key") : System.getenv("BINTRAY_API_KEY")
+    publications = ["mavenJava"]
+    pkg {
+        repo = "minecraft"
+        name = "nashorn-compat-layer"
+        userOrg = user
+        licenses = ["GPL-2.0"]
+        vcsUrl = "https://github.com/ZekerZhayard/NashornCompatLayer.git"
+        labels = ["minecraft", "minecraftforge", "nashorn"]
+        publicDownloadNumbers = true
+        version {
+            name = "${project.version}"
+            desc = "A simple toy to allow MinecraftForge running under Java 15."
+            released = new Date()
+            vcsTag = "${project.version}"
+        }
+    }
 }

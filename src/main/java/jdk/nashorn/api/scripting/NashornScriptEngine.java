@@ -37,20 +37,7 @@ import javax.script.ScriptException;
 
 import io.github.zekerzhayard.nashorncompatlayer.NashornCompatLayer;
 
-/**
- * JSR-223 compliant script engine for Nashorn. Instances are not created directly, but rather returned through
- * {@link NashornScriptEngineFactory#getScriptEngine()}. Note that this engine implements the {@link Compilable} and
- * {@link Invocable} interfaces, allowing for efficient precompilation and repeated execution of scripts.
- * @see NashornScriptEngineFactory
- *
- * @since 1.8u40
- */
 public final class NashornScriptEngine extends AbstractScriptEngine implements Compilable, Invocable {
-    /**
-     * Key used to associate Nashorn global object mirror with arbitrary Bindings instance.
-     */
-    public static final String NASHORN_GLOBAL = "nashorn.global";
-
     public final org.openjdk.nashorn.api.scripting.NashornScriptEngine instance;
 
     public NashornScriptEngine(org.openjdk.nashorn.api.scripting.NashornScriptEngine instance) {
@@ -89,12 +76,12 @@ public final class NashornScriptEngine extends AbstractScriptEngine implements C
 
     @Override
     public Object eval(Reader reader, Bindings bindings) throws ScriptException {
-        return NashornCompatLayer.convertScriptObjectMirror(this.instance.eval(reader, bindings));
+        return NashornCompatLayer.convertScriptObjectMirror(this.instance.eval(reader, (Bindings) NashornCompatLayer.convertScriptObjectMirror(bindings)));
     }
 
     @Override
     public Object eval(String script, Bindings bindings) throws ScriptException {
-        return NashornCompatLayer.convertScriptObjectMirror(this.instance.eval(script, bindings));
+        return NashornCompatLayer.convertScriptObjectMirror(this.instance.eval(script, (Bindings) NashornCompatLayer.convertScriptObjectMirror(bindings)));
     }
 
     @Override
@@ -124,7 +111,7 @@ public final class NashornScriptEngine extends AbstractScriptEngine implements C
 
     @Override
     public Bindings createBindings() {
-        return this.instance.createBindings();
+        return (Bindings) NashornCompatLayer.convertScriptObjectMirror(this.instance.createBindings());
     }
 
     // Compilable methods

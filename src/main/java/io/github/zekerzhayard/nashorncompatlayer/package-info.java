@@ -1,4 +1,0 @@
-@ParametersAreNonnullByDefault
-package io.github.zekerzhayard.nashorncompatlayer;
-
-import javax.annotation.ParametersAreNonnullByDefault;

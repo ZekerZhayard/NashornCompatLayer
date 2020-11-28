@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package jdk.nashorn.api.scripting;
 
 import java.util.List;
@@ -30,20 +31,6 @@ import javax.script.ScriptEngineFactory;
 
 import io.github.zekerzhayard.nashorncompatlayer.NashornCompatLayer;
 
-/**
- * JSR-223 compliant script engine factory for Nashorn. The engine answers for:
- * <ul>
- * <li>names {@code "nashorn"}, {@code "Nashorn"}, {@code "js"}, {@code "JS"}, {@code "JavaScript"},
- * {@code "javascript"}, {@code "ECMAScript"}, and {@code "ecmascript"};</li>
- * <li>MIME types {@code "application/javascript"}, {@code "application/ecmascript"}, {@code "text/javascript"}, and
- * {@code "text/ecmascript"};</li>
- * <li>as well as for the extension {@code "js"}.</li>
- * </ul>
- * Programs executing in engines created using {@link #getScriptEngine(String[])} will have the passed arguments
- * accessible as a global variable named {@code "arguments"}.
- *
- * @since 1.8u40
- */
 public final class NashornScriptEngineFactory implements ScriptEngineFactory {
     public final org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory instance;
 
@@ -111,75 +98,7 @@ public final class NashornScriptEngineFactory implements ScriptEngineFactory {
         return NashornCompatLayer.convertScriptEngine(this.instance.getScriptEngine());
     }
 
-    /**
-     * Create a new Script engine initialized with the given class loader.
-     *
-     * @param appLoader class loader to be used as script "app" class loader.
-     * @return newly created script engine.
-     * @throws SecurityException
-     *         if the security manager's {@code checkPermission}
-     *         denies {@code RuntimePermission("nashorn.setConfig")}
-     */
-    public ScriptEngine getScriptEngine(ClassLoader appLoader) {
-        return NashornCompatLayer.convertScriptEngine(this.instance.getScriptEngine(appLoader));
-    }
-
-    /**
-     * Create a new Script engine initialized with the given class filter.
-     *
-     * @param classFilter class filter to use.
-     * @return newly created script engine.
-     * @throws NullPointerException if {@code classFilter} is {@code null}
-     * @throws SecurityException
-     *         if the security manager's {@code checkPermission}
-     *         denies {@code RuntimePermission("nashorn.setConfig")}
-     */
     public ScriptEngine getScriptEngine(ClassFilter classFilter) {
         return NashornCompatLayer.convertScriptEngine(this.instance.getScriptEngine(classFilter::exposeToScripts));
-    }
-
-    /**
-     * Create a new Script engine initialized with the given arguments.
-     *
-     * @param args arguments array passed to script engine.
-     * @return newly created script engine.
-     * @throws NullPointerException if {@code args} is {@code null}
-     * @throws SecurityException
-     *         if the security manager's {@code checkPermission}
-     *         denies {@code RuntimePermission("nashorn.setConfig")}
-     */
-    public ScriptEngine getScriptEngine(String... args) {
-        return NashornCompatLayer.convertScriptEngine(this.instance.getScriptEngine(args));
-    }
-
-    /**
-     * Create a new Script engine initialized with the given arguments and the given class loader.
-     *
-     * @param args arguments array passed to script engine.
-     * @param appLoader class loader to be used as script "app" class loader.
-     * @return newly created script engine.
-     * @throws NullPointerException if {@code args} is {@code null}
-     * @throws SecurityException
-     *         if the security manager's {@code checkPermission}
-     *         denies {@code RuntimePermission("nashorn.setConfig")}
-     */
-    public ScriptEngine getScriptEngine(String[] args, ClassLoader appLoader) {
-        return NashornCompatLayer.convertScriptEngine(this.instance.getScriptEngine(args, appLoader));
-    }
-
-    /**
-     * Create a new Script engine initialized with the given arguments, class loader and class filter.
-     *
-     * @param args arguments array passed to script engine.
-     * @param appLoader class loader to be used as script "app" class loader.
-     * @param classFilter class filter to use.
-     * @return newly created script engine.
-     * @throws NullPointerException if {@code args} or {@code classFilter} is {@code null}
-     * @throws SecurityException
-     *         if the security manager's {@code checkPermission}
-     *         denies {@code RuntimePermission("nashorn.setConfig")}
-     */
-    public ScriptEngine getScriptEngine(String[] args, ClassLoader appLoader, ClassFilter classFilter) {
-        return NashornCompatLayer.convertScriptEngine(this.instance.getScriptEngine(args, appLoader, classFilter::exposeToScripts));
     }
 }
