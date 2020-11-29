@@ -12,13 +12,13 @@
   "inheritsFrom": "1.16.4-forge-35.1.0",
   "libraries": [
     {
-      "name": "io.github.zekerzhayard:nashorn-compat-layer:1.0.1",
+      "name": "io.github.zekerzhayard:nashorn-compat-layer:1.0.2",
       "downloads": {
         "artifact": {
-          "path": "io/github/zekerzhayard/nashorn-compat-layer/1.0.1/nashorn-compat-layer-1.0.1.jar",
-          "sha1": "e17120ef3a6cc0a5edf255d281cb7d94ab04ff23",
-          "size": 9110,
-          "url": "https://dl.bintray.com/zekerzhayard/minecraft/io/github/zekerzhayard/nashorn-compat-layer/1.0.1/nashorn-compat-layer-1.0.1.jar"
+          "path": "io/github/zekerzhayard/nashorn-compat-layer/1.0.2/nashorn-compat-layer-1.0.2.jar",
+          "sha1": "a2d0311c11892b4fecf5d45ebf38a06f70344ff5",
+          "size": 9067,
+          "url": "https://dl.bintray.com/zekerzhayard/minecraft/io/github/zekerzhayard/nashorn-compat-layer/1.0.2/nashorn-compat-layer-1.0.2.jar"
         }
       }
     },

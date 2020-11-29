@@ -31,7 +31,7 @@ apply plugin: "maven"
 apply plugin: "maven-publish"
 apply plugin: "com.jfrog.bintray"
 
-version = "1.0.2${-> getVersionSuffix()}"
+version = "${mod_version}${-> getVersionSuffix()}"
 group = "io.github.zekerzhayard"
 archivesBaseName = "nashorn-compat-layer"
 
