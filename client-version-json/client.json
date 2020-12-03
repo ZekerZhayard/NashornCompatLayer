@@ -12,7 +12,6 @@
   "inheritsFrom": "1.16.4-forge-35.1.0",
   "libraries": [
     {
-      "name": "io.github.zekerzhayard:nashorn-compat-layer:1.0.2",
       "downloads": {
         "artifact": {
           "path": "io/github/zekerzhayard/nashorn-compat-layer/1.0.2/nashorn-compat-layer-1.0.2.jar",
@@ -20,10 +19,10 @@
           "size": 9067,
           "url": "https://dl.bintray.com/zekerzhayard/minecraft/io/github/zekerzhayard/nashorn-compat-layer/1.0.2/nashorn-compat-layer-1.0.2.jar"
         }
-      }
+      },
+      "name": "io.github.zekerzhayard:nashorn-compat-layer:1.0.2"
     },
     {
-      "name": "org.openjdk.nashorn:nashorn-core:15.0",
       "downloads": {
         "artifact": {
           "path": "io/github/zekerzhayard/nashorn-compat-layer/dependencies/nashorn-core-15.0.jar",
@@ -31,7 +30,8 @@
           "size": 2265159,
           "url": "https://repo1.maven.org/maven2/org/openjdk/nashorn/nashorn-core/15.0/nashorn-core-15.0.jar"
         }
-      }
+      },
+      "name": "org.openjdk.nashorn:nashorn-core:15.0"
     },
     {
       "downloads": {

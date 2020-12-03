@@ -67,7 +67,7 @@ jar {
 }
 
 compileJava {
-    options.compilerArgs += ["--enable-preview"]
+    options.compilerArgs += ["--add-exports", "java.base/jdk.internal.loader=ALL-UNNAMED"]
 }
 
 publishing {

@@ -13,12 +13,9 @@ A simple toy to allow MinecraftForge running under Java 15.
 
 ### For Server
 1. Install [MinecraftForge](https://files.minecraftforge.net/) any versions you want for Minecraft 1.15.2+.
-1. Download this thing and nashorn into `libraries/io/github/zekerzhayard/nashorn-compat-layer/dependencies` folder.
+1. Download this thing and nashorn.
 1. Start server with the command below: (require Java 15+)
 ```
-java --add-modules org.openjdk.nashorn,org.objectweb.asm,org.objectweb.asm.commons,org.objectweb.asm.tree,org.objectweb.asm.tree.analysis,org.objectweb.asm.util \
-    --enable-preview \
-    --module-path libraries/io/github/zekerzhayard/nashorn-compat-layer/dependencies/ \
-    -cp "<this thing, nashorn-core and forge launcher jar>"
+java -cp "<this thing, nashorn-core and forge launcher jar>" \
     net.minecraftforge.server.ServerMain
 ```
