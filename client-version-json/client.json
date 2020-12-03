@@ -1,92 +1,28 @@
 {
-  "arguments": {
-    "jvm": [
-      "--add-modules",
-      "org.openjdk.nashorn,org.objectweb.asm,org.objectweb.asm.commons,org.objectweb.asm.tree,org.objectweb.asm.tree.analysis,org.objectweb.asm.util",
-      "--enable-preview",
-      "--module-path",
-      "${assets_root}/../libraries/io/github/zekerzhayard/nashorn-compat-layer/dependencies/"
-    ]
-  },
   "id": "1.16.4-forge-35.1.0-nashorn-core-15.0",
   "inheritsFrom": "1.16.4-forge-35.1.0",
   "libraries": [
     {
       "downloads": {
         "artifact": {
-          "path": "io/github/zekerzhayard/nashorn-compat-layer/1.0.2/nashorn-compat-layer-1.0.2.jar",
-          "sha1": "a2d0311c11892b4fecf5d45ebf38a06f70344ff5",
-          "size": 9067,
-          "url": "https://dl.bintray.com/zekerzhayard/minecraft/io/github/zekerzhayard/nashorn-compat-layer/1.0.2/nashorn-compat-layer-1.0.2.jar"
+          "path": "io/github/zekerzhayard/nashorn-compat-layer/1.0.3/nashorn-compat-layer-1.0.3.jar",
+          "sha1": "3480405fb4775e314162523c8a6a5868971262d7",
+          "size": 12157,
+          "url": "https://dl.bintray.com/zekerzhayard/minecraft/io/github/zekerzhayard/nashorn-compat-layer/1.0.3/nashorn-compat-layer-1.0.3.jar"
         }
       },
-      "name": "io.github.zekerzhayard:nashorn-compat-layer:1.0.2"
+      "name": "io.github.zekerzhayard:nashorn-compat-layer:1.0.3"
     },
     {
       "downloads": {
         "artifact": {
-          "path": "io/github/zekerzhayard/nashorn-compat-layer/dependencies/nashorn-core-15.0.jar",
+          "path": "org/openjdk/nashorn/nashorn-core/15.0/nashorn-core-15.0.jar",
           "sha1": "2f7756004f2a77edbe4a0273731a27c30694b4cd",
           "size": 2265159,
           "url": "https://repo1.maven.org/maven2/org/openjdk/nashorn/nashorn-core/15.0/nashorn-core-15.0.jar"
         }
       },
       "name": "org.openjdk.nashorn:nashorn-core:15.0"
-    },
-    {
-      "downloads": {
-        "artifact": {
-          "path": "io/github/zekerzhayard/nashorn-compat-layer/dependencies/asm-7.3.1.jar",
-          "sha1": "7ec32f922315924e82bf58b36ee1b673b2a9b820",
-          "size": 121836,
-          "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm/7.3.1/asm-7.3.1.jar"
-        }
-      },
-      "name": "org.ow2.asm:asm:7.3.1"
-    },
-    {
-      "downloads": {
-        "artifact": {
-          "path": "io/github/zekerzhayard/nashorn-compat-layer/dependencies/asm-analysis-7.3.1.jar",
-          "sha1": "045dfd299ea0c17d534499c4f06417ceccfa2d02",
-          "size": 33446,
-          "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-analysis/7.3.1/asm-analysis-7.3.1.jar"
-        }
-      },
-      "name": "org.ow2.asm:asm-analysis:7.3.1"
-    },
-    {
-      "downloads": {
-        "artifact": {
-          "path": "io/github/zekerzhayard/nashorn-compat-layer/dependencies/asm-commons-7.3.1.jar",
-          "sha1": "daaa79ef260eb67404b9a52bc319a024c7f49cfe",
-          "size": 71548,
-          "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-commons/7.3.1/asm-commons-7.3.1.jar"
-        }
-      },
-      "name": "org.ow2.asm:asm-commons:7.3.1"
-    },
-    {
-      "downloads": {
-        "artifact": {
-          "path": "io/github/zekerzhayard/nashorn-compat-layer/dependencies/asm-tree-7.3.1.jar",
-          "sha1": "587ce54d243145b2e89598bfcea7823ded73be5d",
-          "size": 52826,
-          "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-tree/7.3.1/asm-tree-7.3.1.jar"
-        }
-      },
-      "name": "org.ow2.asm:asm-tree:7.3.1"
-    },
-    {
-      "downloads": {
-        "artifact": {
-          "path": "io/github/zekerzhayard/nashorn-compat-layer/dependencies/asm-util-7.3.1.jar",
-          "sha1": "cac1bf54c2fb86671c357d281d1060fe5d50a0de",
-          "size": 84817,
-          "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-util/7.3.1/asm-util-7.3.1.jar"
-        }
-      },
-      "name": "org.ow2.asm:asm-util:7.3.1"
     }
   ],
   "releaseTime": "2020-11-27T10:11:00+00:00",
