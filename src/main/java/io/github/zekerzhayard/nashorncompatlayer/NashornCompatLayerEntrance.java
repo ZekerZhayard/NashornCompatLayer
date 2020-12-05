@@ -28,12 +28,14 @@ import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 import cpw.mods.modlauncher.api.IEnvironment;
@@ -41,6 +43,7 @@ import cpw.mods.modlauncher.api.ITransformationService;
 import cpw.mods.modlauncher.api.ITransformer;
 import jdk.internal.loader.BuiltinClassLoader;
 import jdk.internal.misc.Unsafe;
+import net.minecraftforge.fml.loading.LibraryFinder;
 
 public class NashornCompatLayerEntrance implements ITransformationService {
 
@@ -73,7 +76,10 @@ public class NashornCompatLayerEntrance implements ITransformationService {
                     uri -> FileSystems.newFileSystem(URI.create("jar:" + uri), Map.of("create", "true")),
                     (URI uri, FileSystem zipfs) -> {
                         try (var is = Files.newInputStream(zipfs.getPath("/META-INF/MANIFEST.MF"))) {
-                            return ModuleFinder.of(Paths.get(uri), zipfs.getPath(new Manifest(is).getMainAttributes().getValue("Dependencies")));
+                            return ModuleFinder.compose(
+                                ModuleFinder.of(Paths.get(uri)),
+                                ModuleFinder.of(Stream.of(new Manifest(is).getMainAttributes().getValue("Dependencies").split("\\s+")).map(zipfs::getPath).toArray(Path[]::new))
+                            );
                         }
                     }
                 ),
@@ -126,9 +132,19 @@ public class NashornCompatLayerEntrance implements ITransformationService {
 
     }
 
+    // Forge uses asm Opcodes.class to locate the libraries folder, but this mod bundles new asm libraries,
+    // so we need to define the correct path before it was used.
     @Override
     public void onLoad(@Nonnull IEnvironment env, @Nonnull Set<String> otherServices) {
-
+        try {
+            MethodHandles.privateLookupIn(LibraryFinder.class, MethodHandles.lookup())
+                .findStaticSetter(LibraryFinder.class, "libsPath", Path.class)
+                .invoke(Paths.get(ITransformationService.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+                    //<version> /modlauncher/mods       /cpw        /libraries
+                    .getParent().getParent().getParent().getParent().getParent());
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 
     @Nonnull
