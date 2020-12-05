@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import cpw.mods.modlauncher.api.IEnvironment;
@@ -83,6 +84,8 @@ public class NashornCompatLayerEntrance implements ITransformationService {
                         lookup,
                         finder.findAll().stream()
                             .peek(((BuiltinClassLoader) ClassLoader.getSystemClassLoader())::loadModule)
+                            .collect(Collectors.toSet())
+                            .stream()
                             .map(ModuleReference::descriptor)
                             .filter(d -> d.name().equals(NASHORN_MODULE_NAME))
                             .findFirst().orElseThrow(),
