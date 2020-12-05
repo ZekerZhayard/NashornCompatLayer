@@ -18,7 +18,6 @@
 
 package io.github.zekerzhayard.nashorncompatlayer;
 
-import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.module.Configuration;
@@ -57,7 +56,7 @@ public class NashornCompatLayerEntrance implements ITransformationService {
                     .findVirtual(Module.class, "implAddExportsToAllUnnamed", MethodType.methodType(void.class, String.class)),
                 Module.class.getModule(),
                 Set.of("jdk.internal.loader", "jdk.internal.misc"),
-                MethodHandle::invoke
+                (mh, m, s) -> mh.invoke(m, s)
             );
 
             CheckedLambdaUtils.wrapBiConsumer(
