@@ -37,6 +37,12 @@ archivesBaseName = "nashorn-compat-layer"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = "15"
 
+configurations {
+    provided {
+        compile.extendsFrom provided
+    }
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -45,8 +51,11 @@ repositories {
 }
 
 dependencies {
+    implementation "com.google.code.findbugs:jsr305:3.0.2"
     implementation "cpw.mods:modlauncher:8.0.6"
-    implementation "org.openjdk.nashorn:nashorn-core:15.0"
+    provided "org.openjdk.nashorn:nashorn-core:${nashorn_version}", {
+        transitive = false
+    }
 }
 
 jar {
@@ -61,13 +70,22 @@ jar {
                 "Implementation-Vendor" :"ZekerZhayard",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 "Automatic-Module-Name": "${project.group}.${project.archivesBaseName}".replace("-", "_"),
+                "Dependencies": "/META-INF/libraries/nashorn-core-${nashorn_version}.jar",
                 "GitCommit": String.valueOf(System.getenv("GITHUB_SHA"))
         ])
+    }
+
+    from configurations.provided.collect {dep ->
+        copy {
+            from dep
+            into "${buildDir}/tmp/dependencies/META-INF/libraries"
+        }
+        new File("${buildDir}/tmp/dependencies")
     }
 }
 
 compileJava {
-    options.compilerArgs += ["--add-exports", "java.base/jdk.internal.loader=ALL-UNNAMED"]
+    options.compilerArgs += ["--add-exports", "java.base/jdk.internal.loader=ALL-UNNAMED", "--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED"]
 }
 
 publishing {

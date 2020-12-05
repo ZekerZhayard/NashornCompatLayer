@@ -1,0 +1,111 @@
+/*
+ * Copyright (C) 2020  ZekerZhayard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package io.github.zekerzhayard.nashorncompatlayer;
+
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+public class CheckedLambdaUtils {
+    public static <A1, A2> void wrapBiConsumer(A1 a1, A2 a2, CheckedBiConsumer<A1, A2> consumer) {
+        consumer.accept(a1, a2);
+    }
+
+    public static <A1, A2, T> void wrapBiConsumerWithIterable(A1 a1, A2 a2, Iterable<T> iterable, CheckedBiConsumerWithIterable<A1, A2, T> consumer) {
+        consumer.accept(a1, a2, iterable);
+    }
+
+    public static <A1, A2, R> R wrapBiFunction(A1 a1, A2 a2, CheckedBiFunction<A1, A2, R> function) {
+        return function.apply(a1, a2);
+    }
+
+    public static <A1, A2, R> R wrapLazyFunction(A1 a1, CheckedFunction<A1, A2> f, CheckedLazyFunction<A1, A2, R> function) {
+        return function.apply(a1, f);
+    }
+
+    private static RuntimeException re(Throwable t) {
+        return new RuntimeException(t);
+    }
+
+    public interface CheckedBiConsumer<A1, A2> extends BiConsumer<A1, A2> {
+        @Override
+        default void accept(A1 a1, A2 a2) {
+            try {
+                this.checkedAccept(a1, a2);
+            } catch (Throwable t) {
+                throw re(t);
+            }
+        }
+
+        void checkedAccept(A1 a1, A2 a2) throws Throwable;
+    }
+
+    public interface CheckedBiConsumerWithIterable<A1, A2, T> {
+        default void accept(A1 a1, A2 a2, Iterable<T> iterable) {
+            try {
+                for (T t : iterable) {
+                    this.checkedAccept(a1, a2, t);
+                }
+            } catch (Throwable t) {
+                throw re(t);
+            }
+        }
+
+        void checkedAccept(A1 a1, A2 a2, T t) throws Throwable;
+    }
+
+    public interface CheckedFunction<A, R> extends Function<A, R> {
+        @Override
+        default R apply(A a) {
+            try {
+                return this.checkedApply(a);
+            } catch (Throwable t) {
+                throw re(t);
+            }
+        }
+
+        R checkedApply(A a) throws Throwable;
+    }
+
+    public interface CheckedBiFunction<A1, A2, R> extends BiFunction<A1, A2, R> {
+        @Override
+        default R apply(A1 a1, A2 a2) {
+            try {
+                return this.checkedApply(a1, a2);
+            } catch (Throwable t) {
+                throw re(t);
+            }
+        }
+
+        R checkedApply(A1 a1, A2 a2) throws Throwable;
+    }
+
+    public interface CheckedLazyFunction<A1, A2, R> extends BiFunction<A1, CheckedFunction<A1, A2>, R> {
+        @Override
+        default R apply(A1 a1, CheckedFunction<A1, A2> f) {
+            try {
+                return this.checkedApply(a1, f.apply(a1));
+            } catch (Throwable t) {
+                throw re(t);
+            }
+        }
+
+        R checkedApply(A1 a1, A2 a2) throws Throwable;
+    }
+}
