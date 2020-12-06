@@ -27,8 +27,8 @@ public class CheckedLambdaUtils {
         consumer.accept(a1, a2);
     }
 
-    public static <A1, A2, T> void wrapBiConsumerWithIterable(A1 a1, A2 a2, Iterable<T> iterable, CheckedBiConsumerWithIterable<A1, A2, T> consumer) {
-        consumer.accept(a1, a2, iterable);
+    public static <A, T> void wrapBiConsumerWithIterable(A a, Iterable<T> iterable, CheckedBiConsumerWithIterable<A, T> consumer) {
+        consumer.accept(a, iterable);
     }
 
     public static <A1, A2, R> R wrapBiFunction(A1 a1, A2 a2, CheckedBiFunction<A1, A2, R> function) {
@@ -56,18 +56,18 @@ public class CheckedLambdaUtils {
         void checkedAccept(A1 a1, A2 a2) throws Throwable;
     }
 
-    public interface CheckedBiConsumerWithIterable<A1, A2, T> {
-        default void accept(A1 a1, A2 a2, Iterable<T> iterable) {
+    public interface CheckedBiConsumerWithIterable<A, T> extends BiConsumer<A, Iterable<T>> {
+        default void accept(A a, Iterable<T> iterable) {
             try {
                 for (T t : iterable) {
-                    this.checkedAccept(a1, a2, t);
+                    this.checkedAccept(a, t);
                 }
             } catch (Throwable t) {
                 throw re(t);
             }
         }
 
-        void checkedAccept(A1 a1, A2 a2, T t) throws Throwable;
+        void checkedAccept(A a, T t) throws Throwable;
     }
 
     public interface CheckedFunction<A, R> extends Function<A, R> {

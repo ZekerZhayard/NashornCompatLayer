@@ -23,7 +23,6 @@ import java.lang.invoke.MethodType;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
-import java.lang.module.ModuleReference;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -32,9 +31,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
@@ -44,23 +44,29 @@ import cpw.mods.modlauncher.api.ITransformer;
 import jdk.internal.loader.BuiltinClassLoader;
 import jdk.internal.misc.Unsafe;
 import net.minecraftforge.fml.loading.LibraryFinder;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class NashornCompatLayerEntrance implements ITransformationService {
 
     // bootstrap
 
+    private final static String ASM_MODULE_NAME = "org.objectweb.asm";
     private final static String NASHORN_MODULE_NAME = "org.openjdk.nashorn";
 
     static {
+        bootstrap();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void bootstrap() {
         try {
             // All members in java.lang.Module is in the jdk.internal.reflect.Reflection#fieldFilterMap,
             // so we should use method lookup instead of reflection.
             CheckedLambdaUtils.wrapBiConsumerWithIterable(
                 MethodHandles.privateLookupIn(Module.class, MethodHandles.lookup())
                     .findVirtual(Module.class, "implAddExportsToAllUnnamed", MethodType.methodType(void.class, String.class)),
-                Module.class.getModule(),
                 Set.of("jdk.internal.loader", "jdk.internal.misc"),
-                (mh, m, s) -> mh.invoke(m, s)
+                (mh, s) -> mh.invoke(Object.class.getModule(), s)
             );
 
             CheckedLambdaUtils.wrapBiConsumer(
@@ -86,26 +92,37 @@ public class NashornCompatLayerEntrance implements ITransformationService {
 
                 (lookup, finder) -> {
                     // We need to remove all asm requirements because asm jars are initialized too early so that they are recognized as unnamed modules.
-                    CheckedLambdaUtils.wrapBiConsumer(
-                        lookup,
-                        finder.findAll().stream()
-                            .peek(((BuiltinClassLoader) ClassLoader.getSystemClassLoader())::loadModule)
-                            .collect(Collectors.toSet())
-                            .stream()
-                            .map(ModuleReference::descriptor)
-                            .filter(d -> d.name().equals(NASHORN_MODULE_NAME))
-                            .findFirst().orElseThrow(),
-                        (_lookup, desc) -> _lookup.findVarHandle(ModuleDescriptor.class, "requires", Set.class)
-                            .set(desc, Set.of(desc.requires().stream().filter(r -> !r.name().startsWith("org.objectweb.asm")).toArray(ModuleDescriptor.Requires[]::new)))
+                    CheckedLambdaUtils.wrapBiConsumerWithIterable(
+                        lookup.findVarHandle(ModuleDescriptor.class, "requires", Set.class),
+                        finder.findAll(),
+                        (vh, mr) -> {
+                            ((BuiltinClassLoader) (mr.descriptor().name().startsWith(ASM_MODULE_NAME) ? ClassLoader.getSystemClassLoader() : ClassLoader.getPlatformClassLoader())).loadModule(mr);
+                            vh.set(mr.descriptor(), Set.of(mr.descriptor().requires().stream().filter(r -> !r.name().startsWith(ASM_MODULE_NAME)).toArray(ModuleDescriptor.Requires[]::new)));
+                        }
                     );
 
-                    // Define the nashorn module and add reads
-                    lookup.findVirtual(Module.class, "implAddReadsAllUnnamed", MethodType.methodType(void.class))
-                        .invoke(ModuleLayer.defineModules(
-                            Configuration.resolveAndBind(finder, List.of(ModuleLayer.boot().configuration()), finder, Set.of(NASHORN_MODULE_NAME)),
-                            List.of(ModuleLayer.boot()),
-                            name -> ClassLoader.getSystemClassLoader()
-                        ).layer().findModule(NASHORN_MODULE_NAME).orElseThrow());
+                    // Make sure nashorn was loaded in platform class loader.
+                    CheckedLambdaUtils.wrapBiConsumer(
+                        lookup,
+                        Class.forName("jdk.internal.module.ModuleLoaderMap$Modules", false, ClassLoader.getSystemClassLoader()),
+                        (_lookup, c) -> Objects.requireNonNull(_lookup.findStaticSetter(c, "platformModules", Set.class))
+                            .invoke(Set.of(ArrayUtils.add(((Set<String>) _lookup.findStaticGetter(c, "platformModules", Set.class).invoke()).toArray(String[]::new), NASHORN_MODULE_NAME)))
+                    );
+
+                    // Define the nashorn module and add reads.
+                    CheckedLambdaUtils.wrapBiConsumer(
+                        lookup,
+                        Configuration.resolveAndBind(finder, List.of(ModuleLayer.boot().configuration()), finder, Set.of(NASHORN_MODULE_NAME)),
+                        (_lookup, config) -> _lookup.findVirtual(Module.class, "implAddReadsAllUnnamed", MethodType.methodType(void.class))
+                            .invoke(ModuleLayer.defineModules(
+                                config,
+                                List.of(ModuleLayer.boot()),
+                                (Function<String, ClassLoader>) _lookup.findConstructor(
+                                    Class.forName("jdk.internal.module.ModuleLoaderMap$Mapper", false, ClassLoader.getSystemClassLoader()),
+                                    MethodType.methodType(void.class, Configuration.class)
+                                ).invoke(config)
+                            ).layer().findModule(NASHORN_MODULE_NAME).orElseThrow())
+                    );
                 }
             );
         } catch (Throwable t) {
