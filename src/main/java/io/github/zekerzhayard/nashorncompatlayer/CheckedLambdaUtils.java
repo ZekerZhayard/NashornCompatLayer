@@ -20,15 +20,29 @@ package io.github.zekerzhayard.nashorncompatlayer;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class CheckedLambdaUtils {
+    public static <A> void wrapConsumer(A a, CheckedConsumer<A> consumer) {
+        consumer.accept(a);
+    }
+
     public static <A1, A2> void wrapBiConsumer(A1 a1, A2 a2, CheckedBiConsumer<A1, A2> consumer) {
         consumer.accept(a1, a2);
     }
 
     public static <A, T> void wrapBiConsumerWithIterable(A a, Iterable<T> iterable, CheckedBiConsumerWithIterable<A, T> consumer) {
         consumer.accept(a, iterable);
+    }
+
+    public static <R> R wrapSupplier(CheckedSupplier<R> supplier) {
+        return supplier.get();
+    }
+
+    public static <A, R> R wrapFunction(A a, CheckedFunction<A, R> supplier) {
+        return supplier.apply(a);
     }
 
     public static <A1, A2, R> R wrapBiFunction(A1 a1, A2 a2, CheckedBiFunction<A1, A2, R> function) {
@@ -41,6 +55,19 @@ public class CheckedLambdaUtils {
 
     private static RuntimeException re(Throwable t) {
         return new RuntimeException(t);
+    }
+
+    public interface CheckedConsumer<A> extends Consumer<A> {
+        @Override
+        default void accept(A a) {
+            try {
+                this.checkedAccept(a);
+            } catch (Throwable t) {
+                throw re(t);
+            }
+        }
+
+        void checkedAccept(A a) throws Throwable;
     }
 
     public interface CheckedBiConsumer<A1, A2> extends BiConsumer<A1, A2> {
@@ -68,6 +95,19 @@ public class CheckedLambdaUtils {
         }
 
         void checkedAccept(A a, T t) throws Throwable;
+    }
+
+    public interface CheckedSupplier<R> extends Supplier<R> {
+        @Override
+        default R get() {
+            try {
+                return this.checkedGet();
+            } catch (Throwable t) {
+                throw re(t);
+            }
+        }
+
+        R checkedGet() throws Throwable;
     }
 
     public interface CheckedFunction<A, R> extends Function<A, R> {

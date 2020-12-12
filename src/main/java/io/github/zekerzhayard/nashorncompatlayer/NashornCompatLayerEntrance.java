@@ -41,6 +41,7 @@ import javax.annotation.Nonnull;
 import cpw.mods.modlauncher.api.IEnvironment;
 import cpw.mods.modlauncher.api.ITransformationService;
 import cpw.mods.modlauncher.api.ITransformer;
+import io.github.zekerzhayard.nashorncompatlayer.remapper.RemapperEntrance;
 import jdk.internal.loader.BuiltinClassLoader;
 import jdk.internal.misc.Unsafe;
 import net.minecraftforge.fml.loading.LibraryFinder;
@@ -55,6 +56,7 @@ public class NashornCompatLayerEntrance implements ITransformationService {
 
     static {
         bootstrap();
+        RemapperEntrance.bootstrap();
     }
 
     @SuppressWarnings("unchecked")
@@ -91,13 +93,21 @@ public class NashornCompatLayerEntrance implements ITransformationService {
                 ),
 
                 (lookup, finder) -> {
-                    // We need to remove all asm requirements because asm jars are initialized too early so that they are recognized as unnamed modules.
                     CheckedLambdaUtils.wrapBiConsumerWithIterable(
-                        lookup.findVarHandle(ModuleDescriptor.class, "requires", Set.class),
+                        lookup,
                         finder.findAll(),
-                        (vh, mr) -> {
-                            ((BuiltinClassLoader) (mr.descriptor().name().startsWith(ASM_MODULE_NAME) ? ClassLoader.getSystemClassLoader() : ClassLoader.getPlatformClassLoader())).loadModule(mr);
-                            vh.set(mr.descriptor(), Set.of(mr.descriptor().requires().stream().filter(r -> !r.name().startsWith(ASM_MODULE_NAME)).toArray(ModuleDescriptor.Requires[]::new)));
+                        (_lookup, mr) -> {
+                            ((BuiltinClassLoader) (!mr.descriptor().name().startsWith(NASHORN_MODULE_NAME) ? ClassLoader.getSystemClassLoader() : ClassLoader.getPlatformClassLoader())).loadModule(mr);
+
+                            // We need to remove all asm requirements because asm jars are initialized too early so that they are recognized as unnamed modules.
+                            _lookup.findSetter(ModuleDescriptor.class, "requires", Set.class)
+                                .invoke(mr.descriptor(), Set.of(mr.descriptor().requires().stream().filter(r -> !r.name().startsWith(ASM_MODULE_NAME)).toArray(ModuleDescriptor.Requires[]::new)));
+
+                            // Change nashorn module to open module so that other mods can reflect into it.
+                            _lookup.findSetter(ModuleDescriptor.class, "modifiers", Set.class)
+                                .invoke(mr.descriptor(), Set.of(mr.descriptor().modifiers().toArray(ModuleDescriptor.Modifier[]::new), ModuleDescriptor.Modifier.OPEN));
+                            _lookup.findSetter(ModuleDescriptor.class, "open", boolean.class)
+                                .invoke(mr.descriptor(), true);
                         }
                     );
 
