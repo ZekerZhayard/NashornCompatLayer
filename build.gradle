@@ -52,8 +52,8 @@ repositories {
 
 dependencies {
     implementation "com.google.code.findbugs:jsr305:3.0.2"
-    implementation "cpw.mods:modlauncher:8.0.6"
-    implementation "net.minecraftforge:forge:1.16.4-35.1.0:launcher"
+    implementation "cpw.mods:modlauncher:${modlauncher_version}"
+    implementation "net.minecraftforge:forge:${forge_version}:launcher"
     implementation "org.apache.commons:commons-lang3:3.5"
     provided "org.openjdk.nashorn:nashorn-core:${nashorn_version}"
 }
