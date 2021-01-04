@@ -46,6 +46,6 @@ jobs:
           CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
-        run:
+        run: |
           ./gradlew.bat curseforge -iS
           ./gradlew.bat bintrayUpload -iS
