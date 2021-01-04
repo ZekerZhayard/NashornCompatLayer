@@ -19,9 +19,13 @@
 buildscript {
     repositories {
         jcenter()
+        maven {
+            url = "https://plugins.gradle.org/m2"
+        }
     }
     dependencies {
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5"
+        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.0"
     }
 }
 
@@ -30,12 +34,19 @@ apply plugin: "eclipse"
 apply plugin: "maven"
 apply plugin: "maven-publish"
 apply plugin: "com.jfrog.bintray"
+apply plugin: "com.matthewprenger.cursegradle"
 
 version = "${mod_version}${-> getVersionSuffix()}"
 group = "io.github.zekerzhayard"
 archivesBaseName = "nashorn-compat-layer"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = "15"
+sourceCompatibility = targetCompatibility = "15"
+
+compileJava {
+    sourceCompatibility = targetCompatibility = "15"
+    options.compilerArgs += ["--add-exports", "java.base/jdk.internal.loader=ALL-UNNAMED", "--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED"]
+}
+
 
 configurations {
     provided {
@@ -86,10 +97,6 @@ jar {
     }
 }
 
-compileJava {
-    options.compilerArgs += ["--add-exports", "java.base/jdk.internal.loader=ALL-UNNAMED", "--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED"]
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -118,6 +125,25 @@ bintray {
             desc = "A simple toy to allow MinecraftForge running under Java 15."
             released = new Date()
             vcsTag = "${project.version}"
+        }
+    }
+}
+
+if (System.getenv("CURSEFORGE_API_KEY") != null) {
+    curseforge {
+        apiKey = System.getenv("CURSEFORGE_API_KEY")
+        project {
+            id = "433595"
+            releaseType = "release"
+            mainArtifact jar, {
+                displayName = "${archivesBaseName}-${version}"
+            }
+            addGameVersion "1.15.2"
+            addGameVersion "1.16.1"
+            addGameVersion "1.16.2"
+            addGameVersion "1.16.3"
+            addGameVersion "1.16.4"
+            addGameVersion "Forge"
         }
     }
 }
